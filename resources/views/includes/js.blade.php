@@ -17,13 +17,23 @@
                         {
                             $("#mainContentDiv").empty();
                             $("#mainContentDiv").append('<div id="divTranhinhquyetchien" style="width:300px;position:absolute;top:200px;left:240px">'
-                                +'<h2 style="color:red;position:absolute;top:90px;left:200px" id="satthuonglenta"></h2></div>');
+                                // +'<h2 style="color:red;position:absolute;top:90px;left:200px" id="satthuonglenta6"></h2>'
+                                +'</div>');
                            
                             $("#mainContentDiv").append('<div id="divTranhinhkedich" style="width:300px;position:absolute;top:200px;left:740px">'
-                                +'<h2 style="color:red;position:absolute;top:90px;left:20px" id="satthuonglendich"></h2></div>');
+                                // +'<h2 style="color:red;position:absolute;top:90px;left:20px" id="satthuonglendich6"></h2>'
+                                +'</div>');
                             
                             for (var i = 1; i <=9; i++) {
                                 $("#divTranhinhquyetchien").append("<button id='vitriBtn"+i+"' style='width:100px;height:100px;background:none' class='square'></button>");
+
+                                $("#divTranhinhkedich").append("<button id='vitriKeDich"+i+"' style='width:100px;height:100px;background:none' class='square'></button>");
+
+                                if(i==6) {
+                                    $("#divTranhinhkedich").append('<h2 style="color:red;position:absolute;top:90px;left:20px" id="satthuonglendich6"></h2></div>');
+
+                                    $("#divTranhinhquyetchien").append('<h2 style="color:red;position:absolute;top:90px;left:200px" id="satthuonglenta6"></h2></div>');
+                                }
                             }
                             $.ajax({
                                     url:'../api/'+kedich_id+'/votuongs',
@@ -39,58 +49,114 @@
                                                 if (v.vitri == 3 ) vitri1=1;
                                                 if (v.vitri == 9 ) vitri1=7;
                                                 if (v.vitri == 7 ) vitri1=9;
-                                                $("#vitriKeDich"+vitri1).append("<img src='image/kiemsi9.gif' style='width:100%;height:100%'>");
+                                                $("#vitriKeDich"+vitri1).append(
+                                                    // "<img src='image/kiemsi9.gif' style='width:100%;height:100%'>"
+                                                    v.name
+                                                    );
         
                                             }
                                         });
                                     },
-                                    error: function(data){
-                                        alert();
-                                    }
                             });
                             $.ajax({
                                     url:'../api/'+{{$nhanvat->id}}+'/votuongs',
                                     type: "GET",
                                     success: function(data){
-                                        // console.log(data);
                                         $.each(data, function(i,v){
                                             if(v.vitri>0){
-                                                $("#vitriBtn"+v.vitri).append("<img src='image/kiemsi8.gif' style='width:100%;height:100%'>");
-                                                // $("#vitriBtn"+v.vitri).css('background','#3a616b');
-                                                $("#divTranhinhquyetchien").append("<input type='hidden' id='binhluc2' value='"+v.binhluc+"'>");
+                                                $("#vitriBtn"+v.vitri).append(
+                                                    // "<img src='image/kiemsi8.gif' style='width:100%;height:100%'>"
+                                                    v.name
+                                                    );
                                             }
                                         });
                                     },
-                                    error: function(data){
-                                        alert("error");
-                                    }
                             });
 
-                            for (var i = 1; i <=9; i++) {
-                                $("#divTranhinhkedich").append("<button id='vitriKeDich"+i+"' style='width:100px;height:100px;background:none' class='square'></button>");
-                            }
+                            $.ajax({
+                                    url:'../api/'+{{$nhanvat->id}}+'/'+kedich_id+'/quyetchien',
+                                    type: "GET",
+                                    success: function(data){
+                                        console.log(data);
+                                        loadtranhinh(data.nhanvatVotuongs,data.kedichVotuongs);
+                                    },
+                            });
 
-                            loadtranhinh(-52);
-
-                        }
-
-                        function loadtranhinh(satthuonglendich)
-                        {
-                            setTimeout(function(){ 
-                                $("#satthuonglendich").append(satthuonglendich);
-                                    setTimeout(function(){
-                                        $("#satthuonglendich").empty()}, 500);
-                                        loadtranhinh2(-32);
-                            }, 2000);
                             
+
                         }
-                        function loadtranhinh2(satthuonglenta)
+                        function timmuctieu(vitri, kedichs)
                         {
+                            var trave = 0;
+                            if(vitri==4||vitri==5||vitri==6){
+
+                                $.each(kedichs, function(i,v){
+                                    // alert(vitri+',tt:' +v.trangthai +'vt'+v.vitri);
+                                    if(v.trangthai==1&&v.vitri==3) trave=i;
+                                    if(v.trangthai==1&&v.vitri==9) trave=i;
+                                    if((v.trangthai==1&&v.vitri==6)) {trave=i}
+                                });
+                            }
+                            // alert(trave);
+                            return trave;
+                        }
+
+                        function tancong(nhanvats,kedichs,index){
+                            if(index<nhanvats.length){
+                                setTimeout(function(){ 
+                                        v = nhanvats[index];
+                                    // $.each(nhanvats, function(i , v) {
+                                        if(v.trangthai==1){
+                                            var muctieu = timmuctieu(v.vitri, kedichs);
+                                            var st = v.tancong-kedichs[muctieu].phongthu;
+                                            $("#satthuonglendich"+kedichs[muctieu].vitri).append('-'+st);
+                                            setTimeout(function(){
+                                            $("#satthuonglendich"+kedichs[muctieu].vitri).empty()}, 500);
+                                            kedichs[muctieu].binhluc -= st;
+                                            index++;
+                                            tancong(nhanvats,kedichs,index);
+                                        }
+                                }, 1000);
+                                
+                            } else {
+                                dichtradon(nhanvats,kedichs,0);
+                            }
+                        }
+                        function dichtradon(nhanvats,kedichs,index){
+                            if(index<kedichs.length){
+                                setTimeout(function(){ 
+                                        v = kedichs[index];
+                                    // $.each(nhanvats, function(i , v) {
+                                        if(v.trangthai==1){
+                                            var muctieu = timmuctieu(v.vitri, nhanvats);
+                                            var st = v.tancong-nhanvats[muctieu].phongthu;
+                                            $("#satthuonglenta"+nhanvats[muctieu].vitri).append('-'+st);
+                                            setTimeout(function(){
+                                            $("#satthuonglenta"+nhanvats[muctieu].vitri).empty()}, 500);
+                                            nhanvats[muctieu].binhluc -= st;
+                                            index++;
+                                            dichtradon(nhanvats,kedichs,index);
+                                        }
+                                }, 1000);
+                                
+                            } else {
+                                tancong(nhanvats,kedichs,0);
+                            }
+                        }
+                        function loadtranhinh(nhanvats,kedichs)
+                        {
+                            tancong(nhanvats,kedichs,0);
+                        }
+                        function loadtranhinh2(nhanvats,kedichs)
+                        {
+                            var st = kedich.tancong-nhanvat.phongthu;
                             setTimeout(function(){ 
-                                $("#satthuonglenta").append(satthuonglenta);
+                                $("#satthuonglenta").append('-'+ st);
                                     setTimeout(function(){$("#satthuonglenta").empty()}, 500);
-                                    loadtranhinh(-52);
-                            }, 2000);
+                                    nhanvat.binhluc-= st;
+                                    if (nhanvat.binhluc<=0) alert('Bạn đã thất bại');
+                                    else loadtranhinh(nhanvat,kedich);
+                            }, 1000);
                             
                         }
 

@@ -32,7 +32,15 @@ class NhanvatController extends Controller
     {
         //
     }
-
+    public function quyetchien($nhanvat_id, $kedich_id)
+    {
+        $data = [];
+        $nhanvat = Nhanvat::find($nhanvat_id);
+        $data['nhanvatVotuongs'] = $nhanvat->votuongs();
+        $kedich = Nhanvat::find($kedich_id);
+        $data['kedichVotuongs'] = $kedich->votuongs();
+        return $data;
+    }
     /**
      * Store a newly created resource in storage.
      *

@@ -18,6 +18,15 @@ class Nhanvat extends Model
     		->get();
     }
 
+    public function votuongratrans()
+    {
+        return  DB::table('nhanvat_votuongs')
+            ->join('votuongs', 'votuongs.id', '=', 'nhanvat_votuongs.votuong_id')
+            ->where('nhanvat_votuongs.nhanvat_id', $this->id)
+            ->where('nhanvat_votuongs.vitri', ">", 0)
+            ->get();
+    }
+
     public function tranhinhs()
     {
     	return  DB::table('nhanvat_tranhinhs')

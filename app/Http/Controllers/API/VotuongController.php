@@ -93,4 +93,14 @@ class VotuongController extends Controller
     {
         //
     }
+
+    public function quyetchien($nhanvat_id, $kedich_id)
+    {
+        $data = [];
+        $nhanvat = Nhanvat::find($nhanvat_id);
+        $data['nhanvatVotuongs'] = $nhanvat->votuongratrans();
+        $kedich = Nhanvat::find($kedich_id);
+        $data['kedichVotuongs'] = $kedich->votuongratrans();
+        return $data;
+    }
 }
