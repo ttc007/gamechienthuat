@@ -11,11 +11,16 @@ class Nhanvat extends Model
 
     public function votuongs()
     {
-    	return  DB::table('nhanvat_votuongs')
+    	$votuongs = DB::table('nhanvat_votuongs')
     		->join('votuongs', 'votuongs.id', '=', 'nhanvat_votuongs.votuong_id')
             // ->join('nhanvats', 'nhanvats.id', '=', 'nhanvat_votuongs.nhanvat_id')
             ->where('nhanvat_votuongs.nhanvat_id', $this->id)
     		->get();
+        $data = [];
+        foreach ($votuongs as $key => $votuong) {
+            $data[$votuong->vitri] = $votuong;
+        }
+        return $votuongs;
     }
 
     public function votuongratrans()
